@@ -1,6 +1,6 @@
 import random
 
-def deck_create() :
+def deck_create():
   deck = []
   ranks = ("2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A")
   suits = ("hearts", "diamonds", "clubs", "spades")
@@ -11,15 +11,15 @@ def deck_create() :
 
   return deck
 
-def deck_shuffle() :
+def deck_shuffle():
   deck = deck_create()
   random.shuffle(deck)
   return deck
 
-def deal_card(deck) :
+def deal_card(deck):
   return deck.pop()
 
-def hand_calculator(hand) :
+def hand_calculator(hand):
   hand_value = 0
   ace_ct = 0
   for card in hand : 
@@ -33,30 +33,44 @@ def hand_calculator(hand) :
   hand_value = ace_subtraction(hand_value, ace_ct)
   return hand_value
 
-def ace_subtraction(hand_value, ace_ct) :
+def ace_subtraction(hand_value, ace_ct):
+
   while hand_value > 21 and ace_ct > 0 :
     hand_value -= 10
     ace_ct -= 1
   return hand_value
 
-def hit_stand_answer(player_hand) :
+def dealer_turn(dealer_hand, deck):
+  while hand_calculator(dealer_hand) < 17 : 
+    dealer_hand.append(deal_card(deck))
+  return dealer_hand
+
+def hit_stand_answer(player_hand):
   answer = input(f"Your score is {hand_calculator(player_hand)}. Do you want to hit or stand? \n").lower().strip()
-  while answer not in ("hit", "stand") :
+  while answer not in ("hit", "stand"):
     print("Input invalid please type hit or stand.")
     answer = input("Do you want to hit or stand? \n").lower().strip()
   return answer
 
 def hit_stand_loop(player_hand, deck):
-  while True:
+  while hand_calculator(player_hand) < 21:
     answer = hit_stand_answer(player_hand)
     if answer == "stand":
       break
     player_hand.append(deal_card(deck))
-    if hand_calculator(player_hand) > 21:
-      break
   return player_hand
 
-def game_setup() :
+def determine_winner(player_hand, dealer_hand):
+  player_score = hand_calculator(player_hand)
+  dealer_score = hand_calculator(dealer_hand)
+  if player_score > dealer_score: 
+    print("Player won")
+  elif dealer_score > player_score: 
+    print("Dealer won")                                   
+  else:
+    print("Draw")
+
+def game_setup():
   deck = deck_shuffle()
   player_hand = []
   dealer_hand = []
@@ -66,12 +80,21 @@ def game_setup() :
   dealer_hand.append(deal_card(deck))
   return player_hand, dealer_hand, deck
 
-def game_flow() :  
+def game_flow():  
   keep_playing = True
   while keep_playing :
     player_hand, dealer_hand, deck = game_setup()
     hit_stand_loop(player_hand, deck)
-    print(player_hand)
+    if hand_calculator(player_hand) > 21:
+      print("Player lost")
+    else:
+      dealer_turn(dealer_hand, deck)
+      if hand_calculator(dealer_hand) > 21:
+        print("Player won")
+      else:
+        determine_winner(player_hand, dealer_hand)
     break
       
 game_flow()
+
+
